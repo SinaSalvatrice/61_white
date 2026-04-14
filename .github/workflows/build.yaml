@@ -7,15 +7,15 @@ on:
 permissions:
   contents: read
 
+env:
+  KEYBOARD: 61_white
+  KEYMAP: default
+  USERSPACE: users/${{ github.actor }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     container: ghcr.io/qmk/qmk_cli
-    strategy:
-      fail-fast: false
-      matrix:
-        file:
-          - 0xc7_61key_layout_60_ansi_2026-04-12.json
 
     steps:
       - name: Disable git safe directory checks
@@ -30,16 +30,27 @@ jobs:
       - name: Checkout userspace
         uses: actions/checkout@v4
         with:
-          path: users/${{ github.actor }}
+          path: repo-src
+
+      - name: Stage custom keyboard in userspace
+        run: |
+          mkdir -p "${USERSPACE}/keyboards/${KEYBOARD}/keymaps/${KEYMAP}"
+          cp repo-src/config.h repo-src/keyboard.json repo-src/rules.mk repo-src/source.c "${USERSPACE}/keyboards/${KEYBOARD}/"
+          cp repo-src/keymaps/default/keymap.c "${USERSPACE}/keyboards/${KEYBOARD}/keymaps/${KEYMAP}/"
 
       - name: Build firmware
-        run: qmk compile users/${{ github.actor }}/${{ matrix.file }}
+        env:
+          QMK_USERSPACE: ${{ env.USERSPACE }}
+        run: qmk compile -kb "${KEYBOARD}" -km "${KEYMAP}"
 
       - name: Archive firmware
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.file }}-${{ github.run_number }}
+          name: ${{ env.KEYBOARD }}-${{ env.KEYMAP }}-${{ github.run_number }}
           path: |
+            .build/*.hex
+            .build/*.bin
+            .build/*.uf2
             *.hex
             *.bin
             *.uf2
