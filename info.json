@@ -19,7 +19,7 @@
     "via": true
   },
   "usb": {
-    "vid": "0xFEED",
+    "vid": "0x4D58",
     "pid": "0x6061",
     "device_version": "0.0.1"
   },

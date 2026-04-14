@@ -7,7 +7,8 @@ This repository is set up for remote GitHub Actions builds of the custom keyboar
 
 - `.github/workflows/build.yaml` stages this repo as `keyboards/61_white` inside the QMK checkout and builds `61_white/default` on every push and on manual dispatch.
 - `keymaps/default/keymap.c` contains the default keymap.
-- `config.h`, `info.json`, `rules.mk`, `keyboard.c`, `keyboard.h`, `source.c`, and `via.json` are staged into the `keyboards/61_white` directory during the workflow.
+- `config.h`, `info.json`, `rules.mk`, `keyboard.c`, `keyboard.h`, and `source.c` are staged into the `keyboards/61_white` directory during the workflow.
+- `via61.json` is the standalone VIA definition for the board.
 
 ## Metadata
 
