@@ -12,8 +12,9 @@ This repository is set up for remote GitHub Actions builds of the custom keyboar
 
 ## Metadata
 
-- `info.json` contains the QMK keyboard definition used for compilation.
-- `keyboard.json` remains as the original configurator export reference and is not used as build metadata.
+- `info.json` is the authoritative QMK keyboard definition used for compilation.
+- `keyboard.json` is kept only as a disposable QMK Configurator export reference and is not used as build metadata.
+- When metadata changes, update `info.json`; regenerate or ignore `keyboard.json` as needed.
 
 ## Build output
 
