@@ -35,7 +35,7 @@ jobs:
       - name: Stage custom keyboard
         run: |
           mkdir -p "${KEYBOARD_PATH}/keymaps/${KEYMAP}"
-          cp repo-src/config.h repo-src/keyboard.c repo-src/keyboard.h repo-src/keyboard.json repo-src/rules.mk repo-src/source.c "${KEYBOARD_PATH}/"
+          cp repo-src/config.h repo-src/keyboard.c repo-src/keyboard.h repo-src/keyboard.json repo-src/rules.mk repo-src/source.c repo-src/via.json "${KEYBOARD_PATH}/"
           cp repo-src/keymaps/default/keymap.c "${KEYBOARD_PATH}/keymaps/${KEYMAP}/"
 
       - name: Build firmware
