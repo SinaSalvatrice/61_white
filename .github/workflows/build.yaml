@@ -41,15 +41,19 @@ jobs:
       - name: Build firmware
         run: make "${KEYBOARD}:${KEYMAP}"
 
+      - name: Collect firmware artifacts
+        run: |
+          mkdir -p artifacts
+          find . -type f \( -name '*.hex' -o -name '*.bin' -o -name '*.uf2' \) \
+            ! -path './repo-src/*' \
+            ! -path './.git/*' \
+            -print \
+            -exec cp -f {} artifacts/ \;
+          test -n "$(find artifacts -maxdepth 1 -type f -print -quit)"
+
       - name: Archive firmware
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.KEYBOARD }}-${{ env.KEYMAP }}-${{ github.run_number }}
-          path: |
-            .build/*.hex
-            .build/*.bin
-            .build/*.uf2
-            *.hex
-            *.bin
-            *.uf2
+          path: artifacts/*
           if-no-files-found: error
