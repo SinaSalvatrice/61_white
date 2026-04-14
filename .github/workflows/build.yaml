@@ -39,7 +39,7 @@ jobs:
           cp repo-src/keymaps/default/keymap.c "${KEYBOARD_PATH}/keymaps/${KEYMAP}/"
 
       - name: Build firmware
-        run: qmk compile -kb "${KEYBOARD}" -km "${KEYMAP}"
+        run: make "${KEYBOARD}:${KEYMAP}"
 
       - name: Archive firmware
         uses: actions/upload-artifact@v4
