@@ -5,9 +5,9 @@ This repository is set up for remote GitHub Actions builds of the custom keyboar
 
 ## Files
 
-- `.github/workflows/build.yaml` stages this repo as `61_white/default` inside QMK userspace and builds it on every push and on manual dispatch.
+- `.github/workflows/build.yaml` stages this repo as `keyboards/61_white` inside the QMK checkout and builds `61_white/default` on every push and on manual dispatch.
 - `keymaps/default/keymap.c` contains the default keymap.
-- `config.h`, `rules.mk`, `source.c`, and `keyboard.json` are staged into the `61_white` keyboard directory during the workflow.
+- `config.h`, `rules.mk`, `source.c`, and `keyboard.json` are staged into the `keyboards/61_white` directory during the workflow.
 
 ## Build output
 
@@ -17,5 +17,5 @@ and download the generated artifact for `61_white-default` (`.hex`, `.bin`, or `
 ## Notes
 
 This repository is not a local QMK checkout. The workflow checks out `qmk/qmk_firmware`,
-stages this repository as a custom keyboard under `users/<github-actor>/keyboards/61_white/`,
+stages this repository as a custom keyboard under `keyboards/61_white/`,
 and compiles the `default` keymap remotely on GitHub Actions.

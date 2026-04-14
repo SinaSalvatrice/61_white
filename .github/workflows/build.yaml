@@ -10,7 +10,7 @@ permissions:
 env:
   KEYBOARD: 61_white
   KEYMAP: default
-  USERSPACE: users/${{ github.actor }}
+  KEYBOARD_PATH: keyboards/61_white
 
 jobs:
   build:
@@ -32,15 +32,13 @@ jobs:
         with:
           path: repo-src
 
-      - name: Stage custom keyboard in userspace
+      - name: Stage custom keyboard
         run: |
-          mkdir -p "${USERSPACE}/keyboards/${KEYBOARD}/keymaps/${KEYMAP}"
-          cp repo-src/config.h repo-src/keyboard.json repo-src/rules.mk repo-src/source.c "${USERSPACE}/keyboards/${KEYBOARD}/"
-          cp repo-src/keymaps/default/keymap.c "${USERSPACE}/keyboards/${KEYBOARD}/keymaps/${KEYMAP}/"
+          mkdir -p "${KEYBOARD_PATH}/keymaps/${KEYMAP}"
+          cp repo-src/config.h repo-src/keyboard.json repo-src/rules.mk repo-src/source.c "${KEYBOARD_PATH}/"
+          cp repo-src/keymaps/default/keymap.c "${KEYBOARD_PATH}/keymaps/${KEYMAP}/"
 
       - name: Build firmware
-        env:
-          QMK_USERSPACE: ${{ env.USERSPACE }}
         run: qmk compile -kb "${KEYBOARD}" -km "${KEYMAP}"
 
       - name: Archive firmware
