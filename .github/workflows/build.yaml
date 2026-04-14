@@ -39,12 +39,12 @@ jobs:
           cp repo-src/keymaps/default/keymap.c "${KEYBOARD_PATH}/keymaps/${KEYMAP}/"
 
       - name: Build firmware
-        run: make "${KEYBOARD}:${KEYMAP}"
+        run: make "${KEYBOARD}:${KEYMAP}:uf2"
 
       - name: Collect firmware artifacts
         run: |
           mkdir -p artifacts
-          find . -type f \( -name '*.hex' -o -name '*.bin' -o -name '*.uf2' \) \
+          find . -type f -name '*.uf2' \
             ! -path './repo-src/*' \
             ! -path './.git/*' \
             -print \

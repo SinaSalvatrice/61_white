@@ -3,6 +3,7 @@ SRC += keyboard.c
 
 MCU = RP2040
 BOOTLOADER = rp2040
+FIRMWARE_FORMAT = uf2
 
 LTO_ENABLE = yes
 VIA_ENABLE = yes
