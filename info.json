@@ -6,8 +6,13 @@
   "bootloader": "rp2040",
   "diode_direction": "COL2ROW",
   "matrix_pins": {
-    "rows": ["GP2", "GP3", "GP4", "GP5", "GP6"],
-    "cols": ["GP7", "GP8", "GP9", "GP10", "GP11", "GP12", "GP13", "GP14", "GP15", "GP26", "GP27", "GP28", "GP29", "P10"]
+    "rows": ["GP0", "GP1", "GP2", "GP3", "GP4"],
+    "cols": ["GP5", "GP6", "GP7", "GP8", "GP9", "GP10", "GP11", "GP12", "GP13", "GP14", "GP15", "GP26", "GP27", "GP28"]
+      "cols": ["GP5", "GP6", "GP7", "GP8", "GP9", "GP10", "GP11", "GP12", "GP13", "GP14", "GP15", "GP26", "GP27", "GP28", "GP29"]
+    },
+    "rgb": {
+      "pin": "GP29"
+    },
   },
   "features": {
     "bootmagic": true,
