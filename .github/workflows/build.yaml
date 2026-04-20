@@ -43,7 +43,7 @@ jobs:
 
       - name: Collect firmware artifacts
         run: |
-          mkdir -p artifacts
+          mkdir artifacts
           find . -type f -name '*.uf2' \
             ! -path './repo-src/*' \
             ! -path './.git/*' \
