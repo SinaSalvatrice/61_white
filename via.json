@@ -6,7 +6,12 @@
     "rows": 5,
     "cols": 14
   },
-  "menus": [],
+  "menus": [
+    {
+      "label": "Unterbodenbeleuchtung",
+      "type": "rgblight"
+    }
+  ],
   "layouts": {
     "keymap": [
       [
