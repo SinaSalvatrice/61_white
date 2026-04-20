@@ -61,7 +61,7 @@ jobs:
       - name: Stage artifact
         run: |
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
-          find "$QMK_HOME" -type f -name "${KEYBOARD}_${KEYMAP}.uf2" -exec cp {} "$GITHUB_WORKSPACE/artifacts/" \;
+          cp "$QMK_HOME/${KEYBOARD}_${KEYMAP}.uf2" "$GITHUB_WORKSPACE/artifacts/"
           test -f "$GITHUB_WORKSPACE/artifacts/${KEYBOARD}_${KEYMAP}.uf2"
 
       - name: Upload firmware UF2
