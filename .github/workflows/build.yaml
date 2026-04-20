@@ -24,7 +24,7 @@ jobs:
       contents: read
 
     env:
-      KEYBOARD: gk61_clone
+      KEYBOARD: 61_white
       KEYMAP: default
       QMK_HOME: /tmp/qmk_firmware
 
