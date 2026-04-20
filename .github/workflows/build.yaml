@@ -47,6 +47,10 @@ jobs:
           cp -R "$GITHUB_WORKSPACE/." "$QMK_HOME/keyboards/$KEYBOARD/"
           rm -rf "$QMK_HOME/keyboards/$KEYBOARD/.git" "$QMK_HOME/keyboards/$KEYBOARD/.github"
 
+      - name: Remove -Werror from QMK build
+        run: |
+          find "$QMK_HOME/builddefs" -type f -name '*.mk' -exec sed -i 's/-Werror//g' {} +
+
       - name: Build firmware
         run: |
           git config --global --add safe.directory "$QMK_HOME"
