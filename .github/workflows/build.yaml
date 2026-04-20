@@ -1,78 +1,118 @@
-name: default Firmware Build
+name: Build firmware
 
 on:
   workflow_dispatch:
-  repository_dispatch:
+    inputs:
+      keyboard:
+        description: "QMK keyboard path, e.g. handwired/61_white"
+        required: true
+        default: "handwired/61_white"
+      keymap:
+        description: "Keymap name"
+        required: true
+        default: "default"
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - master
     paths:
-      - "config.h"
-      - "keyboard.json"
-      - "README.md"
-      - "keyboard.c"
-      - "keyboard.h"
-      - "rules.mk"
-      - "keymaps/**"
-      - ".github/workflows/qmk_build.yml"
+      - 'keyboards/**'
+      - '.github/workflows/build.yml'
   pull_request:
 
-jobs:
-  firmware:
-    runs-on: ubuntu-latest
-    container: ghcr.io/qmk/qmk_cli@sha256:2dc05fc9f32efebd6b05c2b8676ee548358bc7e151e9dbf4dac6b6eed4513b07
-    permissions:
-      contents: read
+env:
+  KEYBOARD: handwired/61_white
+  KEYMAP: default
 
-    env:
-      KEYBOARD: 61_white
-      KEYMAP: default
-      QMK_HOME: /tmp/qmk_firmware
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout keyboard repo
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          submodules: recursive
 
-      - name: Clone QMK Firmware
+      - name: Resolve inputs
+        shell: bash
         run: |
-          git clone --depth 1 --filter=blob:none https://github.com/qmk/qmk_firmware.git "$QMK_HOME"
-          git -C "$QMK_HOME" submodule update --init --depth 1 lib/chibios lib/chibios-contrib lib/pico-sdk lib/printf lib/lufa
-          qmk config user.qmk_home="$QMK_HOME"
+          if [ -n "${{ github.event.inputs.keyboard }}" ]; then
+            echo "KEYBOARD=${{ github.event.inputs.keyboard }}" >> $GITHUB_ENV
+          fi
+          if [ -n "${{ github.event.inputs.keymap }}" ]; then
+            echo "KEYMAP=${{ github.event.inputs.keymap }}" >> $GITHUB_ENV
+          fi
+          echo "Using KEYBOARD=$KEYBOARD"
+          echo "Using KEYMAP=$KEYMAP"
 
-      - name: Inject keyboard sources
+      - name: Install dependencies
+        shell: bash
         run: |
-          mkdir -p "$QMK_HOME/keyboards/$KEYBOARD"
-          find "$QMK_HOME/keyboards/$KEYBOARD" -mindepth 1 -maxdepth 1 ! -name ".git" -exec rm -rf {} +
-          cp -R "$GITHUB_WORKSPACE/." "$QMK_HOME/keyboards/$KEYBOARD/"
-          rm -rf "$QMK_HOME/keyboards/$KEYBOARD/.git" "$QMK_HOME/keyboards/$KEYBOARD/.github"
+          sudo apt-get update
+          sudo apt-get install -y \
+            git \
+            unzip \
+            zip \
+            tar \
+            gzip \
+            xz-utils \
+            dfu-programmer \
+            dfu-util \
+            gcc-avr \
+            binutils-avr \
+            avr-libc \
+            arm-none-eabi-gcc \
+            arm-none-eabi-binutils \
+            arm-none-eabi-newlib
 
-      - name: Remove -Werror from QMK build
-        run: |
-          find "$QMK_HOME/builddefs" -type f -name '*.mk' -exec sed -i 's/-Werror//g' {} +
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Build firmware
+      - name: Install QMK CLI
+        shell: bash
         run: |
-          git config --global --add safe.directory "$QMK_HOME"
-          cd "$QMK_HOME"
+          python -m pip install --upgrade pip
+          pip install qmk
+
+      - name: Set up QMK
+        shell: bash
+        run: |
+          qmk setup -y -H "$HOME/qmk_firmware"
+          rsync -av --delete keyboards/ "$HOME/qmk_firmware/keyboards/" || true
+          echo "Repo keyboard files copied into QMK tree"
+
+      - name: Show copied keyboard folders
+        shell: bash
+        run: |
+          echo "Searching for keyboard path hints..."
+          find "$HOME/qmk_firmware/keyboards" -maxdepth 4 -type d | sort | sed -n '1,300p'
+
+      - name: Compile firmware
+        shell: bash
+        run: |
+          cd "$HOME/qmk_firmware"
           qmk compile -kb "$KEYBOARD" -km "$KEYMAP"
 
-      - name: List UF2 files for debug
+      - name: Collect build artifacts
+        shell: bash
         run: |
-          echo "Listing all .uf2 files in $QMK_HOME:"
-          find "$QMK_HOME" -type f -name "*.uf2" -exec ls -lh {} \;
+          mkdir -p artifacts
+          cd "$HOME/qmk_firmware"
 
-      - name: Stage artifact
-        run: |
-          mkdir -p "$GITHUB_WORKSPACE/artifacts"
-          cp "$QMK_HOME/${KEYBOARD}_${KEYMAP}.uf2" "$GITHUB_WORKSPACE/artifacts/"
-          test -f "$GITHUB_WORKSPACE/artifacts/${KEYBOARD}_${KEYMAP}.uf2"
+          echo "Listing .build contents:"
+          find .build -maxdepth 3 -type f | sort || true
 
-      - name: Upload firmware UF2
+          find .build -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" -o -name "*.elf" \) -exec cp {} "$GITHUB_WORKSPACE/artifacts/" \;
+
+          echo "Collected artifacts:"
+          ls -la "$GITHUB_WORKSPACE/artifacts"
+
+      - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${KEYBOARD}_${KEYMAP}_uf2
-          path: artifacts/${KEYBOARD}_${KEYMAP}.uf2
+          name: firmware_${{ env.KEYBOARD }}_${{ env.KEYMAP }}
+          path: artifacts/*
           if-no-files-found: error
-          compression-level: 6
-          overwrite: false
