@@ -53,6 +53,11 @@ jobs:
           cd "$QMK_HOME"
           qmk compile -kb "$KEYBOARD" -km "$KEYMAP"
 
+      - name: List UF2 files for debug
+        run: |
+          echo "Listing all .uf2 files in $QMK_HOME:"
+          find "$QMK_HOME" -type f -name "*.uf2" -exec ls -lh {} \;
+
       - name: Stage artifact
         run: |
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
