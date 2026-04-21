@@ -16,8 +16,7 @@ on:
       - main
       - master
     paths:
-      - 'keyboards/**'
-      - '.github/workflows/build.yml'
+      - '**'
   pull_request:
 
 env:
@@ -62,9 +61,9 @@ jobs:
             gcc-avr \
             binutils-avr \
             avr-libc \
-            arm-none-eabi-gcc \
-            arm-none-eabi-binutils \
-            arm-none-eabi-newlib
+            gcc-arm-none-eabi \
+            binutils-arm-none-eabi \
+            libnewlib-arm-none-eabi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -81,8 +80,14 @@ jobs:
         shell: bash
         run: |
           qmk setup -y -H "$HOME/qmk_firmware"
-          rsync -av --delete keyboards/ "$HOME/qmk_firmware/keyboards/" || true
-          echo "Repo keyboard files copied into QMK tree"
+          KEYBOARD_DIR="$HOME/qmk_firmware/keyboards/$KEYBOARD"
+          mkdir -p "$KEYBOARD_DIR"
+          rsync -av --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'artifacts/' \
+            "$GITHUB_WORKSPACE/" "$KEYBOARD_DIR/"
+          echo "Repo keyboard files copied into $KEYBOARD_DIR"
 
       - name: Show copied keyboard folders
         shell: bash
