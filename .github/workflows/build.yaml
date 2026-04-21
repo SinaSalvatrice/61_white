@@ -16,7 +16,15 @@ on:
       - main
       - master
     paths:
-      - '**'
+      - '.github/workflows/build.yaml'
+      - 'config.h'
+      - 'info.json'
+      - 'keyboard.c'
+      - 'keyboard.h'
+      - 'keymaps/**'
+      - 'rules.mk'
+      - 'source.c'
+      - 'via.json'
   pull_request:
 
 env:
@@ -88,6 +96,7 @@ jobs:
             --exclude 'artifacts/' \
             "$GITHUB_WORKSPACE/" "$KEYBOARD_DIR/"
           echo "Repo keyboard files copied into $KEYBOARD_DIR"
+          find "$KEYBOARD_DIR" -maxdepth 2 -type f | sort
 
       - name: Show copied keyboard folders
         shell: bash
